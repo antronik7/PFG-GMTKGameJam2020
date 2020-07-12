@@ -11,10 +11,16 @@ public class CharacterController : MonoBehaviour
     //Components
     Animator myAnimator;
 
+    //Awake is always called before any Start functions
+    void Awake()
+    {
+        myAnimator = GetComponent<Animator>();
+    }
+
     // Start is called before the first frame update
     void Start()
     {
-        myAnimator = GetComponent<Animator>();
+        
     }
 
     // Update is called once per frame
