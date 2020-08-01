@@ -4,22 +4,33 @@ using UnityEngine;
 
 public class GameManager : MonoBehaviour
 {
-    public enum GameState { Walking, SelectMonsters, Fight, TriggerAction };
+    public enum GameState { Walking, SelectMonsters, Fight, TriggerAction, Win, Lose, Start };
     public enum ActionType { Attack, Block, Heal };
 
     public static GameManager instance = null;
 
+    public int nbrRoomCleared = 0;
+    public int nbrMonsterKill = 0;
+
     //Instances
     [SerializeField]
-    CharacterController theCharacter;
+    public CharacterController theCharacter;
     [SerializeField]
     GameObject[] monsters;
     [SerializeField]
-    DeckController monsterDeck;
+    public GameObject[] actions;
     [SerializeField]
-    DeckController actionDeck;
+    public DeckController monsterDeck;
+    [SerializeField]
+    public DeckController actionDeck;
     [SerializeField]
     GameObject fightText;
+    [SerializeField]
+    TMPro.TextMeshPro TxtDiff;
+    [SerializeField]
+    TMPro.TextMeshPro TxtDiffLevel;
+    [SerializeField]
+    GameObject gameOverScreen;
 
     //Values
     [SerializeField]
@@ -28,12 +39,14 @@ public class GameManager : MonoBehaviour
     int nbrActionsInPool;
 
     //Variables
-    public GameState currentState;
+    public GameState currentState = GameState.Start;
     public GameState previousState;
     public Vector3 playerDestination;
     public GameObject objectHolded = null;
     GameObject[] monstersPool;
-    RoomController currentRoom;
+    public RoomController currentRoom;
+    public int gameLevel = 0;
+    float gametime;
 
     //Awake is always called before any Start functions
     void Awake()
@@ -42,20 +55,29 @@ public class GameManager : MonoBehaviour
             instance = this;
         else if (instance != this)
             Destroy(gameObject);
-
-        DontDestroyOnLoad(gameObject);
     }
 
     // Start is called before the first frame update
     void Start()
     {
-        StartRun();
+
     }
 
     // Update is called once per frame
     void Update()
     {
+        if(currentState != GameState.Start)
+        {
+            gametime += Time.deltaTime;
+            if(gametime >= 30f)
+            {
+                gameLevel++;
+                gametime = 0f;
+            }
 
+            TxtDiff.text = "Difficulty :";
+            TxtDiffLevel.text = "LV " + (gameLevel + 1) + " " + ((int)gametime) + "/30";
+        }
     }
 
     void LateUpdate()
@@ -79,7 +101,7 @@ public class GameManager : MonoBehaviour
         }
     }
 
-    void StartRun()
+    public void StartRun()
     {
         RoomGeneratorController.instance.GenerateRoom();
         GenerateMonsters();
@@ -111,6 +133,18 @@ public class GameManager : MonoBehaviour
         {
             StartCoroutine(TriggerAction());
         }
+        else if (currentState == GameState.Win)
+        {
+            nbrRoomCleared++;
+            StopAllCoroutines();
+            StartCoroutine(Winning());
+        }
+        else if (currentState == GameState.Lose)
+        {
+            actionDeck.Hide();
+            StopAllCoroutines();
+            gameOverScreen.SetActive(true);
+        }
     }
 
     IEnumerator TransitionToFight()
@@ -124,7 +158,7 @@ public class GameManager : MonoBehaviour
             yield return new WaitForSeconds(0.6f);
         }
 
-        Debug.Log("2");
+        theCharacter.GetAction();
         actionDeck.DrawFromDeck();
     }
 
@@ -135,13 +169,24 @@ public class GameManager : MonoBehaviour
         for (int i = 0; i < currentRoom.monsterSlots.Length; i++)
         {
             if (currentRoom.monsterSlots[i].TriggerAction())
-                yield return new WaitForSeconds(1f);
+                yield return new WaitForSeconds(0.5f);
         }
 
-        //Action du joueur ici...
-        yield return new WaitForSeconds(1f);
+        theCharacter.TriggerAction();
+        yield return new WaitForSeconds(0.5f);
+
+        currentRoom.ShowEmptylSlots();
+        Debug.Log("ICI");
 
         ChangeState(GameState.Fight);
+    }
+
+    IEnumerator Winning()
+    {
+        yield return new WaitForSeconds(0.5f);
+        actionDeck.Hide();
+        RoomGeneratorController.instance.GenerateRoom();
+        ChangeState(GameState.Walking);
     }
 
     public void SetPlayerDestination(Vector2 newDestination)

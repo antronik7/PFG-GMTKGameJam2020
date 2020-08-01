@@ -24,6 +24,9 @@ public class CameraController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        if (GameManager.instance.currentState == GameManager.GameState.TriggerAction || GameManager.instance.currentState == GameManager.GameState.Win)
+            return;
+
         // Define a target position above and behind the target transform
         Vector3 targetPosition = playerPosition.position + (Vector3.right * offset);
         targetPosition = new Vector3(targetPosition.x, 0f, -10f);

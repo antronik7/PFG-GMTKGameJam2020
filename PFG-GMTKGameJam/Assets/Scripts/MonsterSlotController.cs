@@ -6,7 +6,7 @@ public class MonsterSlotController : MonoBehaviour
 {
     //Instances
     [SerializeField]
-    MonsterController monsterInSlot;
+    public MonsterController monsterInSlot;
     [SerializeField]
     ActionController actionInSlot;
     [SerializeField]
@@ -41,7 +41,7 @@ public class MonsterSlotController : MonoBehaviour
 
                 GameManager.instance.DropObject();
             }
-            else if (GameManager.instance.currentState == GameManager.GameState.Fight && actionInSlot == null && GameManager.instance.objectHolded != null)
+            else if (GameManager.instance.currentState == GameManager.GameState.Fight && actionInSlot == null && GameManager.instance.objectHolded != null && monsterInSlot != null)
             {
                 DisplayCanInteract(false);
 
@@ -66,7 +66,7 @@ public class MonsterSlotController : MonoBehaviour
         }
         else if (GameManager.instance.currentState == GameManager.GameState.Fight)
         {
-            if (actionInSlot == null)
+            if (actionInSlot == null && monsterInSlot != null)
             {
                 canInteractFeeback.enabled = value;
                 isAllowedFeedback.enabled = false;
@@ -86,7 +86,7 @@ public class MonsterSlotController : MonoBehaviour
         }
         else if (GameManager.instance.currentState == GameManager.GameState.Fight)
         {
-            if (actionInSlot == null)
+            if (actionInSlot == null && monsterInSlot != null)
             {
                 canInteractFeeback.enabled = false;
                 isAllowedFeedback.enabled = true;
@@ -117,7 +117,15 @@ public class MonsterSlotController : MonoBehaviour
 
         monsterInSlot.TriggerAction(actionInSlot.type);
         actionInSlot.gameObject.SetActive(false);
+        actionInSlot = null;
 
         return true;
+    }
+
+    public void killMonster()
+    {
+        monsterInSlot.gameObject.SetActive(false);
+        monsterInSlot = null;
+        GameManager.instance.nbrMonsterKill++;
     }
 }

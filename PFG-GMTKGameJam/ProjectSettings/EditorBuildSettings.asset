@@ -9,6 +9,9 @@ EditorBuildSettings:
     path: Assets/LogoPFG/LogoPFG.unity
     guid: 8e132101b8f604c4483cd3eb77e4def9
   - enabled: 1
+    path: Assets/Scenes/Title.unity
+    guid: 4bfe3bbc83da86245bf58e6e8e44ae72
+  - enabled: 1
     path: Assets/Scenes/Main.unity
     guid: 7e62ed653b4110c4e9d8d217532506e9
   m_configObjects: {}

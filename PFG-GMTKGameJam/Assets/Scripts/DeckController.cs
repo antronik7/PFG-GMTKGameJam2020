@@ -34,6 +34,9 @@ public class DeckController : MonoBehaviour
     void Start()
     {
         myAnimator = GetComponent<Animator>();
+
+        if (isActionDeck)
+            ShuffleDeck();
     }
 
     // Update is called once per frame
@@ -72,16 +75,16 @@ public class DeckController : MonoBehaviour
 
                 if(GameManager.instance.currentState == GameManager.GameState.SelectMonsters)
                 {
-                    deck[i].GetComponent<MonsterController>().DrawMonster(chest.transform.position, handSlotsPosition[i].transform.position, drawSpeed, transform);
+                    deck[0].GetComponent<MonsterController>().DrawMonster(chest.transform.position, handSlotsPosition[i].transform, drawSpeed, transform, i);
                 }
                 else
                 {
-                    deck[i].GetComponent<ActionController>().DrawAction(chest.transform.position, handSlotsPosition[i].transform.position, drawSpeed, transform);
+                    deck[0].GetComponent<ActionController>().DrawAction(chest.transform.position, handSlotsPosition[i].transform, drawSpeed, transform, i);
                 }
 
                 deck.RemoveAt(0);
-
-                //Check if deck is not empty...
+                if (deck.Count <= 0)
+                    ShuffleDeck();
 
                 if (i < handSlots.Length - 1)
                     yield return new WaitForSeconds(timeBetweenDraw);
@@ -91,13 +94,20 @@ public class DeckController : MonoBehaviour
 
     public void ShuffleDeck()
     {
-        if(isActionDeck == false)
-        {
-            deck.Clear();
+        deck.Clear();
 
+        if (isActionDeck == false)
+        {
             for (int i = 0; i < GameManager.instance.GetNumberMonsterInPool(); ++i)
             {
                 deck.Add(GameManager.instance.GetMonsterFromPool(i));
+            }
+        }
+        else
+        {
+            for (int i = 0; i < GameManager.instance.GetNumberActionInPool(); ++i)
+            {
+                deck.Add(GameManager.instance.actions[i]);
             }
         }
 
@@ -115,5 +125,10 @@ public class DeckController : MonoBehaviour
             deck[i] = deck[randomIndex];
             deck[randomIndex] = temp;
         }
+    }
+
+    public void RemoveFromHandSlot(int index)
+    {
+        handSlots[index] = null;
     }
 }

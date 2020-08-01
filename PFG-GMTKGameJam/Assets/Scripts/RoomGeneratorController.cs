@@ -21,7 +21,7 @@ public class RoomGeneratorController : MonoBehaviour
     int nbrCorridorsToSpawn;
 
     //Variables
-    Vector2 currentPosition;
+    public Vector2 currentPosition;
 
     public static RoomGeneratorController instance = null;
 
@@ -32,22 +32,25 @@ public class RoomGeneratorController : MonoBehaviour
             instance = this;
         else if (instance != this)
             Destroy(gameObject);
+
+        currentPosition = startPosition;
     }
 
     // Start is called before the first frame update
     void Start()
     {
-        currentPosition = startPosition;
+        
     }
 
     // Update is called once per frame
     void Update()
     {
-        
+
     }
 
     public void GenerateRoom()
     {
+        //currentPosition = testPosition;
         for (int i = 0; i < nbrCorridorsToSpawn; ++i)
         {
             Instantiate(corridor, currentPosition, Quaternion.identity);

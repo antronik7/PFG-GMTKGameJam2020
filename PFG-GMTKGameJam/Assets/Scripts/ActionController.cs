@@ -16,7 +16,8 @@ public class ActionController : MonoBehaviour
     bool isHolded = false;
     MonsterSlotController currentSlot;
     float speed;
-    Vector3 destination;
+    Transform destination;
+    int handIndex;
 
     // Start is called before the first frame update
     void Start()
@@ -33,7 +34,7 @@ public class ActionController : MonoBehaviour
             {
                 // Move our position a step closer to the target.
                 float step = speed * Time.deltaTime; // calculate distance to move
-                transform.position = Vector3.MoveTowards(transform.position, destination, step);
+                transform.position = Vector3.MoveTowards(transform.position, destination.position, step);
             }
             else if (isHolded)
             {
@@ -62,7 +63,7 @@ public class ActionController : MonoBehaviour
     {
         isHolded = false;
         isInHand = true;
-        transform.position = destination;
+        transform.position = destination.position;
         myCollider.enabled = true;
     }
 
@@ -73,12 +74,13 @@ public class ActionController : MonoBehaviour
         transform.position = newSlot.transform.position + (Vector3.up * 0.96f);
         transform.parent = null;
         GameManager.instance.objectHolded = null;
+        GameManager.instance.actionDeck.RemoveFromHandSlot(handIndex);
 
         if (GameManager.instance.CheckIfAllActionsArePlaced())
             GameManager.instance.ChangeState(GameManager.GameState.TriggerAction);
     }
 
-    public void DrawAction(Vector3 startPositoin, Vector3 handPosition, float moveSpeed, Transform parent)
+    public void DrawAction(Vector3 startPositoin, Transform handPosition, float moveSpeed, Transform parent, int handSlotIndex)
     {
         gameObject.SetActive(true);
         gameObject.transform.position = startPositoin;
@@ -86,5 +88,7 @@ public class ActionController : MonoBehaviour
         destination = handPosition;
         speed = moveSpeed;
         isInHand = true;
+        handIndex = handSlotIndex;
+        gameObject.GetComponent<Collider2D>().enabled = true;
     }
 }

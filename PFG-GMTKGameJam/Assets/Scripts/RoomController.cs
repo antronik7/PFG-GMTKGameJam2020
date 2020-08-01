@@ -82,14 +82,36 @@ public class RoomController : MonoBehaviour
         return true;
     }
 
-    public bool CheckIfAllActionPlaced()
+    public bool CheckIfAllMonsterAreDead()
     {
         for (int i = 0; i < monsterSlots.Length; ++i)
         {
-            if (monsterSlots[i].gameObject.activeSelf == true && monsterSlots[i].IsActionInSlot() == false)
+            if (monsterSlots[i].gameObject.activeSelf == true && monsterSlots[i].IsMonsterInSlot() == true)
                 return false;
         }
 
         return true;
+    }
+
+    public bool CheckIfAllActionPlaced()
+    {
+        for (int i = 0; i < monsterSlots.Length; ++i)
+        {
+            if (monsterSlots[i].gameObject.activeSelf == true && monsterSlots[i].IsActionInSlot() == false && monsterSlots[i].IsMonsterInSlot())
+                return false;
+        }
+
+        return true;
+    }
+
+    public MonsterSlotController GetFirstValidMonsterSlot()
+    {
+        for (int i = 0; i < monsterSlots.Length; ++i)
+        {
+            if (monsterSlots[i].IsMonsterInSlot())
+                return monsterSlots[i];
+        }
+
+        return null;
     }
 }
